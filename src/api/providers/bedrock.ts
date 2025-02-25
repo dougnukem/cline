@@ -24,9 +24,11 @@ export class AwsBedrockHandler implements ApiHandler {
 		let stream
 		const model = this.getModel()
 
-		switch (modelId) {
-			case "anthropic.claude-3-sonnet-20240229-v1:0":
-			case "anthropic.claude-3-haiku-20240307-v1:0": {
+		switch (true) {
+			// Supports prompt caching: https://docs.aws.amazon.com/bedrock/latest/userguide/prompt-caching.html#prompt-caching-models
+			case modelId.includes("anthropic.claude-3-7-sonnet-20250219-v1:0"):
+			case modelId.includes("anthropic.claude-3-5-sonnet-20241022-v2:0"):
+			case modelId.includes("anthropic.claude-3-5-haiku-20241022-v1:0"): {
 				// Find indices of user messages for cache control
 				const userMsgIndices = messages.reduce(
 					(acc, msg, index) => (msg.role === "user" ? [...acc, index] : acc),
@@ -91,6 +93,7 @@ export class AwsBedrockHandler implements ApiHandler {
 				break
 			}
 			default: {
+				console.log("model id not support caching:", modelId)
 				stream = await client.messages.create({
 					model: modelId,
 					max_tokens: model.info.maxTokens || 8192,
