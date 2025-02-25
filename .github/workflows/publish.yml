@@ -3,6 +3,11 @@ name: "Publish Release"
 on:
     workflow_dispatch:
         inputs:
+            ref:
+                description: "Branch or tag to checkout"
+                required: true
+                default: "main"
+                type: string
             release-type:
                 description: "Choose release type (release or pre-release)"
                 required: true
@@ -33,7 +38,10 @@ jobs:
         runs-on: ubuntu-latest
 
         steps:
-            - uses: actions/checkout@v4
+            - name: Checkout code
+              uses: actions/checkout@v4
+              with:
+                  ref: ${{ github.event.inputs.ref }}
 
             - name: Setup Node.js
               uses: actions/setup-node@v4
